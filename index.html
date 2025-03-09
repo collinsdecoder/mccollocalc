@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator</title>
+    <link rel="manifest" href="manifest.json">
+    <style>
+        .calculatorContainer {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: black;
+        }
+        .btn:hover {
+            background-color: red;
+        }
+        #equal:hover, .pow:hover {
+            background-color: blue;
+        }
+        .clr:hover, .del:hover {
+            background-color: green;
+        }
+        body {
+            background-color: black;
+            justify-content: center;
+            align-items: center;
+            display: flex;
+        }
+        .calculator {
+            width: 400px;
+            background-color: black;
+            text-align: center;
+        }
+        .buttons {
+            margin-top: 20px;
+        }
+        button {
+            width: 70px;
+            outline: none;
+            border: 1px grey solid;
+            background: transparent;
+            color: white;
+            height: 60px;
+            font-size: 20px;
+            font-family: fantasy;
+            margin: 7px;
+            box-shadow: -8px -8px 15px black;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #display {
+            color: black;
+            padding: 50px;
+            text-align: end;
+            width: 300px;
+            border-radius: 2rem;
+            border: none;
+            outline: none;
+            font-size: 50px;
+        }
+        input {
+            border: none;
+            outline: none;
+            align-items: flex-end;
+        }
+        .equal button {
+            width: 147px;
+        }
+        .clr, .del {
+            background-color: red;
+        }
+        .pow, .eq {
+            background-color: green;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculatorContainer">
+        <div class="calculator">
+            <div class="display">
+                <input type="text" name="display" id="display" disabled>
+            </div>
+            <div class="buttons">
+                <button class="clr" onclick="clearDisplay()">AC</button>
+                <button class="del" onclick="deleteLastChar()">DEL</button>
+                <button class="pow" onclick="appendToDisplay('**')">POW</button>
+                <button class="btn" onclick="appendToDisplay('-')">-</button>
+                <button class="btn" onclick="appendToDisplay('7')">7</button>
+                <button class="btn" onclick="appendToDisplay('8')">8</button>
+                <button class="btn" onclick="appendToDisplay('9')">9</button>
+                <button class="btn" onclick="appendToDisplay('/')">/</button>
+                <button class="btn" onclick="appendToDisplay('4')">4</button>
+                <button class="btn" onclick="appendToDisplay('5')">5</button>
+                <button class="btn" onclick="appendToDisplay('6')">6</button>
+                <button class="btn" onclick="appendToDisplay('*')">*</button>
+                <button class="btn" onclick="appendToDisplay('1')">1</button>
+                <button class="btn" onclick="appendToDisplay('2')">2</button>
+                <button class="btn" onclick="appendToDisplay('3')">3</button>
+                <button class="btn" onclick="appendToDisplay('+')">+</button>
+                <button class="btn" onclick="appendToDisplay('.')">.</button>
+                <button class="btn" onclick="appendToDisplay('0')">0</button>
+                <button style="width: 159px;" id="equal" class="eq" onclick="calculateResult()">=</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js').then((registration) => {
+                    console.log('Service Worker registered with scope:', registration.scope);
+                }, (error) => {
+                    console.log('Service Worker registration failed:', error);
+                });
+            });
+        }
+
+        function appendToDisplay(value) {
+            document.getElementById('display').value += value;
+        }
+
+        function clearDisplay() {
+            document.getElementById('display').value = '';
+        }
+
+        function deleteLastChar() {
+            let display = document.getElementById('display').value;
+            document.getElementById('display').value = display.substring(0, display.length - 1);
+        }
+
+        function calculateResult() {
+            let result = eval(document.getElementById('display').value);
+            document.getElementById('display').value = result;
+        }
+
+        // Service Worker
+        self.addEventListener('install', (event) => {
+            event.waitUntil(
+                caches.open('calculator-cache').then((cache) => {
+                    return cache.addAll([
+                        '/',
+                        'index.html',
+                        'styles.css',
+                        'script.js'
+                        // Add other assets like images, fonts, etc.
+                    ]);
+                })
+            );
+        });
+
+        self.addEventListener('fetch', (event) => {
+            event.respondWith(
+                caches.match(event.request).then((response) => {
+                    return response || fetch(event.request);
+                })
+            );
+        });
+    </script>
+</body>
+</html>
